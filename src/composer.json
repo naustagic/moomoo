@@ -1,0 +1,7 @@
+{
+    "require": {
+        "php-amqplib/php-amqplib": "^3.2",
+        "team-reflex/discord-php": "^7.2",
+        "bunny/bunny": "@dev"
+    }
+}

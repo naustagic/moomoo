@@ -1,0 +1,1 @@
+moomoo restart && tail -f logs.d/wrapper.log
