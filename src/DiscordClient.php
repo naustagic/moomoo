@@ -68,45 +68,66 @@ class DiscordClient Extends ConfigLoader
 		if($message->guild_id = "1012270279386480650" && $message->channel->id == "1012270279956905995")
 		{
 			$message->member->removeRole("1022491714075762779");
-			$message->member->setNickname($result["characters"][0]["name"]);
-			if($packet["server"]["id"] != "115")
+			$message->member->setNickname($result["characters"][0]["name"])->done(function () use ($message,$result,$packet)
 			{
-				$message->member->addRole("1022100654707200082");
-			}
-			else
-			{
-				$message->member->addRole("1022060560919056434");
-				switch($packet["clan"]["name"])
+				if($packet["server"]["id"] != "115")
 				{
-					case "DTM Sicarios":
-					case "DTM 大精灵 I":
-						$message->member->addRole("1022048247616913448");
-						$message->member->addRole("1022048828595109939");
-						break;
-					case "DTM 大精灵 II":
-						$message->member->addRole("1022048527985160223");
-						$message->member->addRole("1022048828595109939");
-						break;
-					case "DTM 大精灵 III":
-						$message->member->addRole("1022048345281277973");
-						$message->member->addRole("1022048828595109939");
-						break;
-					case "DTM 大精灵 IV":
-						$message->member->addRole("1022048673011609682");
-						$message->member->addRole("1022048828595109939");
-						break;
-					case "DTM 大精灵 V":
-						$message->member->addRole("1022048568686690344");
-						$message->member->addRole("1022048828595109939");
-						break;
-					case "DTM 大精灵 VI":
-						$message->member->addRole("1022786653464559636");
-						$message->member->addRole("1022048828595109939");
-						break;
+					$message->member->addRole("1022100654707200082");
 				}
-			}
+				else
+				{
+					$message->member->addRole("1022060560919056434")->done(function () use ($message,$packet)
+					{
+						switch($packet["clan"]["name"])
+						{
+							case "DTM Sicarios":
+							case "DTM 大精灵 I":
+								$message->member->addRole("1022048247616913448")->done(function () use ($message)
+								{
+									$message->member->addRole("1022048828595109939");
+								});
+								break;
+							case "DTM 大精灵 II":
+								$message->member->addRole("1022048527985160223")->done(function () use ($message)
+								{
+									$message->member->addRole("1022048828595109939");
+								});
+								break;
+							case "DTM 大精灵 III":
+								$message->member->addRole("1022048345281277973")->done(function () use ($message)
+								{
+									$message->member->addRole("1022048828595109939");
+								});
+								break;
+							case "DTM 大精灵 IV":
+								$message->member->addRole("1022048673011609682")->done(function () use ($message)
+								{
+									$message->member->addRole("1022048828595109939");
+								});
+								break;
+							case "DTM 大精灵 V":
+								$message->member->addRole("1022048568686690344")->done(function () use ($message)
+								{
+									$message->member->addRole("1022048828595109939");
+								});
+								break;
+							case "DTM 大精灵 VI":
+								$message->member->addRole("1022786653464559636")->done(function () use ($message)
+								{
+									$message->member->addRole("1022048828595109939");
+								});
+								break;
+							case "DTM 大精灵 VII":
+								$message->member->addRole("1024495866419105893")->done(function () use ($message)
+								{
+									$message->member->addRole("1022048828595109939");
+								});
+								break;
+						}
+					});
+				}
+			});
 		}
-
 
 		if($packet["power"] > 0) $color = "#28674F";
 		if($packet["power"] > 135000) $color = "#20416b";
