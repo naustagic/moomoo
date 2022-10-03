@@ -14,19 +14,39 @@ class DiscordClient Extends ConfigLoader
 
 	private $loop = null;
 	private $discord = null;
-	private $commands = array();
+	private $apply_commands = array();
+	private $move_commands = array();
 
 	function __construct()
 	{
 		parent::__construct();
-		$this->commands[] = "!ign ";
-                $this->commands[] = "!apply ";
-                $this->commands[] = "! ign ";
-                $this->commands[] = "! apply ";
-                $this->commands[] = "!ing ";
-                $this->commands[] = "ign ";
-                $this->commands[] = "ing ";
-                $this->commands[] = "apply ";
+		$this->apply_commands[] = "!ign ";
+		$this->apply_commands[] = "!ign  ";
+                $this->apply_commands[] = "!apply ";
+                $this->apply_commands[] = "!apply  ";
+                $this->apply_commands[] = "! ign ";
+                $this->apply_commands[] = "! ign  ";
+                $this->apply_commands[] = "! apply ";
+                $this->apply_commands[] = "! apply  ";
+                $this->apply_commands[] = "!ing  ";
+                $this->apply_commands[] = "ign ";
+                $this->apply_commands[] = "ign  ";
+                $this->apply_commands[] = "ing ";
+                $this->apply_commands[] = "ing  ";
+                $this->apply_commands[] = "apply ";
+                $this->apply_commands[] = "apply  ";
+                $this->move_commands["!move"] = 1;
+                $this->move_commands["!move "] = 1;
+                $this->move_commands["!move  "] = 1;
+                $this->move_commands["move"] = 1;
+                $this->move_commands["move "] = 1;
+                $this->move_commands["move  "] = 1;
+                $this->move_commands[" !move"] = 1;
+                $this->move_commands[" !move "] = 1;
+                $this->move_commands[" !move  "] = 1;
+                $this->move_commands[" move"] = 1;
+                $this->move_commands[" move "] = 1;
+                $this->move_commands[" move  "] = 1;
 		$this->loop = Factory::create();
 		$this->config["discord"]["loop"] = $this->loop;
 		$this->config["discord"]["intents"] = Intents::getDefaultIntents() | Intents::GUILD_MEMBERS;
@@ -47,12 +67,13 @@ class DiscordClient Extends ConfigLoader
 
         private function MESSAGE_CREATE($message,$discord)
         {
-                if(mb_strlen($message->content) < 6) return true;
-                foreach($this->commands as $cmd)
+                if(mb_strlen($message->content) < 5) return true;
+                foreach($this->apply_commands as $cmd)
                 {
                         $val = $this->parse($message->content,$cmd);
                         if($val) return $this->ign($message,$val);
                 }
+		if(isset($this->move_commands[$message->content])) return $this->move($message);
         }
 
 	protected function ign($message,$query)
@@ -146,6 +167,37 @@ class DiscordClient Extends ConfigLoader
 		$description .= "Global Rank: ".$packet["global_rank"]."\n";
 		$embed->setDescription($description);
 		$message->reply(\Discord\Builders\MessageBuilder::new()
+				->addEmbed($embed));
+	}
+	protected function move($message)
+	{
+		$query = urlencode($message->member->nick);
+		$result = json_decode(file_get_contents("https://api.mir4.gq/v1/search/$query"),true);
+		if(isset($result["error"]))
+		{
+			if($result["error"] == "no response") return $message->reply("404 not found");
+			return $message->reply($result["error"]);
+		}
+		$packet = $result["characters"][0]["data"];
+
+		if($packet["power"] > 0) $color = "#28674F";
+		if($packet["power"] > 135000) $color = "#20416b";
+		if($packet["power"] > 170000) $color = "#751d20";
+		if($packet["power"] > 205000) $color = "#b2931b";
+		$embed = new \Discord\Parts\Embed\Embed($this->discord);
+		$embed->setColor($color);
+		$embed->setTitle($result["characters"][0]["name"]);
+		$description = $packet["class"]["name"]." ".number_format($packet["power"],0,".",",")." PS\n";
+		$description .= "Clan: ".$packet["clan"]["name"]."\n";
+		$description .= "Clan Rank: ".$packet["clan"]["rank"]."\n";
+		$description .= "Server: ".$packet["server"]["name"]."\n";
+		$description .= "Server Rank: ".$packet["server"]["rank"]."\n";
+		$description .= "Region: ".$packet["region"]["name"]."\n";
+		$description .= "Region Rank: ".$packet["region"]["rank"]."\n";
+		$description .= "Global Rank: ".$packet["global_rank"]."\n";
+		$embed->setDescription($description);
+		$message->reply(\Discord\Builders\MessageBuilder::new()
+				->setContent("Thank You, <@{$message->member->id}>, you will be considered the next time we reorganize the clans!")
 				->addEmbed($embed));
 	}
 
